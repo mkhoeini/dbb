@@ -1,0 +1,8 @@
+= Database Building Blocks
+
+* Datomic inspired.
+* Backend agnostic.
+* Draws on from good ideas out there.
+  - Graph query. Pull api.
+  - Falcor.
+  - REST architecture style. FRP.
