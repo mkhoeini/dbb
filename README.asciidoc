@@ -1,7 +1,95 @@
 = Database Building Blocks
 
-* Datomic inspired.
-* Backend agnostic.
+== Goals
+
+. It needs to run on mobile devices and mobile networks. That means it needs to:
+  * use little resources
+  * work offline
+  * chat over network as little as possible
++
+. It is a framework for both _Clojure_ and _Clojurescript_ to build the data layer.
+
+
+== Design
+
+Data has a list of snapshots. Each transaction on data creates a new snapshot of data.
+
+Nodes are completely independent from each other. A node can be aware of some of snapshots.
+And has some partial checkout of some of them. Because data checkouts are partial it means
+some data could be missing. And the system should be able to handle that.
+
+We have a query interface, a storage engine, a transactor, and a server.
+
+The *query engine* is the specialized interface to storage engine. It recieves queries,
+analises them, builds query strategies, and finally asks storage engine for the actual data.
+And then after recieving the actual data it can transform them to the form that query asked for.
+
+The *storage engine* is more of a cache than being an actual storage. It can recieve simple
+requests for returning lists of triples, then it can look into its internal storage or delegate
+to external sources.
+
+The *transactor* is the part which forms new snapshots of data. It takes a base snapshot and a
+set of changes and from them creates a new snapshot.
+
+The *server* part is needed because peers need to talk to each other to be able to sink with each other.
+However, this part is entirely optional, and is there for utility. Communication between peers
+are uniform in both directions, which means that the code here can be used both to serve others
+and to query others.
+
+
+== Reification
+
+Implementations are abstract in the way that they rely on protocols.
+
+First, query engine gets
+the storage as a parameter. Storage needs to implement at the very least `ISeq`. Which means that
+it can return all the facts one by one. Moreover, if it implements `IIndexedByAttribute` and
+`IIndexedByEntity` then running queries can be optimized further.
+
+Then, the storage itself is any object which implements `IStorage`. This protocol is 2 simple methods:
+`get`, `recieve`.
+
+
+== Usage
+
+[source,clojure]
+----
+(ns example
+  (:require
+    [dbb.core :as dbb]
+    [dbb.query :as q]))
+
+(def data [(1 :user/name "John Doe")
+           (1 :user/address "Universe")
+           (2 :user/name "Jane Doe")])
+
+(def names (q/query '[:find ?n
+                      :in $
+                      :where [?e :user/name ?n]]
+                    data))
+
+(def db
+  (let [store (atom {})]
+    (reify
+      dbb/IStorage
+      (get [this tx]
+        (for [attr (get @store tx)
+              ent (val attr)]
+          (val ent)))
+      (recieve [this fact]
+        (let [[ent attr _ _ tx] fact]
+          (swap! store assoc-in [tx attr ent] fact)))
+      dbb/IIndexedByAttribute
+      (get-from-attr [this tx attr]
+        (for [ent (get-in @store [tx attr])]
+          (val ent))))))
+
+(def names2 (q/query '[...] db))
+----
+
+
+== Ideas
+
 * Draws on from good ideas out there.
   - Graph query. Pull api.
   - Falcor.
