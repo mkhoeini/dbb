@@ -10,6 +10,28 @@
 . It is a framework for both _Clojure_ and _Clojurescript_ to build the data layer.
 
 
+== Scenarios
+
+=== Object mapper
+
+I have a typical PostgreSQL database, with existing data in it. Now I want to interact with it in a better fashion.
+
+=== P2P
+
+I want to write a server that implements a p2p protocol, like bittorrent. Now, I want that my nodes auto discover
+each other, and automatically sync.
+
+=== Client - Server
+
+I have a mobile app in Clojurescript and a server in Clojure. I want to write my mobile applications in a fashion
+which seams that all data is local to them. They own their version of database with full functionality. And when
+they become online, it updates the server without any concern.
+
+=== Gateway
+
+A server wants to expose its databse as a REST API or other means like GraphQL.
+
+
 == Design
 
 Data has a list of snapshots. Each transaction on data creates a new snapshot of data.
@@ -35,6 +57,13 @@ The *server* part is needed because peers need to talk to each other to be able 
 However, this part is entirely optional, and is there for utility. Communication between peers
 are uniform in both directions, which means that the code here can be used both to serve others
 and to query others.
+
+
+== About consistency
+
+The consistency model is much inspired by git. By which I mean peers can push, pull and they merge their
+HEADs which happens automatically if there is no conflict. In the event of conflict the initiator of
+push or pull is responsible for resolution of conflict.
 
 
 == Reification
@@ -86,24 +115,6 @@ Then, the storage itself is any object which implements `IStorage`. This protoco
 
 (def names2 (q/query '[...] db))
 ----
-
-
-== Scenarios
-
-=== Object mapper
-
-I have a typical PostgreSQL database, with existing data in it. Now I want to interact with it in a better fashion.
-
-=== P2P
-
-I want to write a server that implements a p2p protocol, like bittorrent. Now, I want that my nodes auto discover
-each other, and automatically sync.
-
-=== Client - Server
-
-I have a mobile app in Clojurescript and a server in Clojure. I want to write my mobile applications in a fashion
-which seams that all data is local to them. They own their version of database with full functionality. And when
-they become online, it updates the server without any concern.
 
 
 == Ideas
