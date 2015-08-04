@@ -88,6 +88,24 @@ Then, the storage itself is any object which implements `IStorage`. This protoco
 ----
 
 
+== Scenarios
+
+=== Object mapper
+
+I have a typical PostgreSQL database, with existing data in it. Now I want to interact with it in a better fashion.
+
+=== P2P
+
+I want to write a server that implements a p2p protocol, like bittorrent. Now, I want that my nodes auto discover
+each other, and automatically sync.
+
+=== Client - Server
+
+I have a mobile app in Clojurescript and a server in Clojure. I want to write my mobile applications in a fashion
+which seams that all data is local to them. They own their version of database with full functionality. And when
+they become online, it updates the server without any concern.
+
+
 == Ideas
 
 * Draws on from good ideas out there.
