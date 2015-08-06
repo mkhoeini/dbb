@@ -66,6 +66,13 @@ HEADs which happens automatically if there is no conflict. In the event of confl
 push or pull is responsible for resolution of conflict.
 
 
+== Unlocked capabilities
+
+Meta information about the database, like the parent of current transaction, number of facts in this transaction, etc,
+can also be stored uniformly in the database using the transactor. Transactor can be customized to output other things
+like the event which caused this transaction, which can be extemely helpful for debuging.
+
+
 == Reification
 
 Implementations are abstract in the way that they rely on protocols.
