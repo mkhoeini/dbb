@@ -1,4 +1,7 @@
 = Database Building Blocks
+:toc: macro
+
+toc::[]
 
 == Goals
 
@@ -12,7 +15,7 @@
 
 == Scenarios
 
-=== Object mapper
+=== Object Mapper
 
 I have a typical PostgreSQL database, with existing data in it. Now I want to interact with it in a better fashion.
 
@@ -59,21 +62,57 @@ are uniform in both directions, which means that the code here can be used both 
 and to query others.
 
 
-== About consistency
+=== About Consistency
 
 The consistency model is much inspired by git. By which I mean peers can push, pull and they merge their
 HEADs which happens automatically if there is no conflict. In the event of conflict the initiator of
 push or pull is responsible for resolution of conflict.
 
 
-== Unlocked capabilities
+=== Unlocked Capabilities
 
 Meta information about the database, like the parent of current transaction, number of facts in this transaction, etc,
 can also be stored uniformly in the database using the transactor. Transactor can be customized to output other things
 like the event which caused this transaction, which can be extemely helpful for debuging.
 
 
-== Reification
+=== HEAD
+
+Each pear contains a special pointer named HEAD which means the last snapshot it currently holds.
+
+
+=== Hashing Guaranties
+
+All the pears need to share a hashing function. Through this function, objects of database are stored alongside their
+hash to guaranty consistency. For example, the transaction is a list of attributes. So, eventhough the pear might not
+have all the attributes, it can calculate its local hash and now that something must be missing.
+
+
+=== Irredeemable Snapshots
+
+Since the data is distributed and can be lost in this model, there might come times which the current snapshot can't
+be gattered in its totality at all. Some portions of it is lost forever. These kind of snapshots are said to be
+irredimable. Since some portion of the facts are lost meens that we didn't care for those portions it meens we probably
+can get away without them. We can just do a trace back to the last redeemable snapshot or the begining of time, and
+then recreate the history based on remaining facts.
+
+
+=== Rewriting History
+
+If there is any kind of official history, then it must mean there is an authority amongst pears. So the authoriry can
+rewrite its own history, change its HEAD to the new recent head of history, and ask others to update their history
+acordingly, and forget about alternate histories.
+
+
+=== About Thyself
+
+Meta information about the database, like the number of facts in this transaction or etc, often require knowing things
+which might not be present before the transaction is formed. To remedy that, meta information is stored parallel to
+the real information. First the transaction is formed based on the data, then its *para-transaction* is formed and stored
+alongside and transmited to anyone that requests it.
+
+
+== Implementation
 
 Implementations are abstract in the way that they rely on protocols.
 
