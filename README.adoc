@@ -169,3 +169,4 @@ Then, the storage itself is any object which implements `IStorage`. This protoco
   - Graph query. Pull api.
   - Falcor.
   - REST architecture style. FRP.
+  - Building a distributed p2p unix file system on top would be interesting.
